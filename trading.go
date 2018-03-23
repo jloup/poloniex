@@ -77,6 +77,63 @@ func (p *Poloniex) TradeReturnAvailableAccountBalances() (accounts Accounts, err
 	return
 }
 
+type Position struct {
+	Type             string          `json:"type"`
+	LendingFees      decimal.Decimal `json:"lendingFees"`
+	Amount           decimal.Decimal `json:"amount"`
+	Total            decimal.Decimal `json:"total"`
+	PlusValue        decimal.Decimal `json:"pl"`
+	BasePrice        decimal.Decimal `json:"basePrice"`
+	LiquidationPrice decimal.Decimal `json:"liquidationPrice"`
+}
+
+func (p *Poloniex) TradeGetMarginPosition() (map[string]Position, error) {
+	respch := make(chan []byte)
+	errch := make(chan error)
+
+	go p.tradingRequest("getMarginPosition", map[string]string{"currencyPair": "all"}, respch, errch)
+
+	response := <-respch
+	err := <-errch
+
+	if err != nil {
+		return nil, err
+	}
+
+	result := make(map[string]Position)
+	err = json.Unmarshal(response, &result)
+
+	return result, err
+}
+
+type MarginSummary struct {
+	NetValue           decimal.Decimal `json:"netValue"`
+	TotalBorrowedValue decimal.Decimal `json:"totalBorrowedValue"`
+	CurrentMargin      decimal.Decimal `json:"currentMargin"`
+	TotalValue         decimal.Decimal `json:"totalValue"`
+	LendingFees        decimal.Decimal `json:"lendingFees"`
+	PlusValue          decimal.Decimal `json:"pl"`
+}
+
+func (p *Poloniex) TradeReturnMarginAccountSummary() (MarginSummary, error) {
+	respch := make(chan []byte)
+	errch := make(chan error)
+
+	go p.tradingRequest("returnMarginAccountSummary", nil, respch, errch)
+
+	response := <-respch
+	err := <-errch
+
+	if err != nil {
+		return MarginSummary{}, err
+	}
+
+	var result MarginSummary
+	err = json.Unmarshal(response, &result)
+
+	return result, err
+}
+
 func (p *Poloniex) TradeReturnDepositAdresses() (depositaddresses map[string]string, err error) {
 
 	depositaddresses = make(map[string]string)
