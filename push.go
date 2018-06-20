@@ -76,7 +76,7 @@ type WSClient struct {
 }
 
 func setchannelids() (err error) {
-	p, err := NewClient("", "")
+	p, err := NewClient("", "", 10)
 	if err != nil {
 		return err
 	}

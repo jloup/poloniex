@@ -36,12 +36,12 @@ type Poloniex struct {
 	httpClient *http.Client
 }
 
-func NewClient(key, secret string, args ...bool) (client *Poloniex, err error) {
+func NewClient(key, secret string, timeout int32, args ...bool) (client *Poloniex, err error) {
 
 	client = &Poloniex{
 		key:        key,
 		secret:     secret,
-		httpClient: &http.Client{Timeout: time.Second * 10}}
+		httpClient: &http.Client{Timeout: time.Second * time.Duration(timeout)}}
 
 	if len(args) > 0 && args[0] {
 		logbus := make(chan string)
